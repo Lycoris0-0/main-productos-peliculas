@@ -6,8 +6,8 @@ import sqlite3
 app = FastAPI()
 
 origins = [
-    "http://localhost:5500",
-    "http://127.0.0.1:5500",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
 ]
 
 app.add_middleware(
@@ -45,6 +45,21 @@ async def obtenerProductos() -> list[Producto]:
 
     return [dict(producto) for producto in respuesta.fetchall()]
 # POST
+@app.post("/productos")
+async def agregarProducto(producto: ProductoCreate):
+    conexion = sqlite3.connect("master.db")
+    
+    cursor = conexion.cursor()
+    
+    print(producto.nombre)
+    print(producto.precio) 
+
+    cursor.execute("INSERT INTO productos VALUES(?, ?, ?)", (None,producto.nombre, producto.precio))
+
+    conexion.commit()
+
+    conexion.close()
+
 
 # PATCH
 
