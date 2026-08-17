@@ -21,15 +21,76 @@ app.add_middleware(
 
 @app.get("/")
 async def root():
-    return { "Estado": "Servidor en línea"}
+    return { "palo": "palo"}
+
+
+
+# FACTURA
 
 class Factura(BaseModel):
-    id:  int | None = None
+    id: int | None = None
     numero_factura: int
-    fecha: int
+    fecha: str
     cliente: str
-    total:int
+    total: int
 
 class FacturaCreate(BaseModel):
     numero_factura: int
-    cliente
+    fecha: str
+    cliente: str
+    total: int
+
+
+@app.get("/facturas")
+async def obtenerFacturas() -> list[Factura]:
+    conexion = sqlite3.connect("master.db")
+    conexion.row_factory = sqlite3.Row
+    
+    cursor = conexion.cursor()
+
+    respuesta = cursor.execute("SELECT * FROM facturas ORDER BY fecha DESC")
+
+    data = respuesta.fetchall()
+
+    conexion.close()
+
+    return [dict(factura) for factura in data]
+
+
+@app.get("/facturas/{id}")
+async def buscarFactura(id: int):
+    conexion = sqlite3.connect("master.db")
+    conexion.row_factory = sqlite3.Row
+    
+    cursor = conexion.cursor()
+    
+    cursor.execute("SELECT * FROM facturas WHERE id = ?", (id,))
+    respuesta = cursor.fetchall()
+
+    conexion.commit()
+    
+    conexion.close()
+
+    if respuesta is None:
+        return {"error": "Factura no encontrada"}
+            
+    return (respuesta)
+
+
+
+@app.post("/facturas")
+async def agregarFactura(factura: FacturaCreate):
+    conexion = sqlite3.connect("master.db")
+    
+    cursor = conexion.cursor()
+    
+    print(factura.numero_factura)
+    print(factura.cliente) 
+
+    cursor.execute("INSERT INTO facturas VALUES(?, ?, ?, ?,?)", (None, factura.numero_factura, factura.fecha, factura.cliente, factura.total))
+
+    conexion.commit()
+
+    conexion.close()
+    return { "mensaje": "Creado correctamente"}
+

@@ -39,9 +39,7 @@ class ProductoUpdate(BaseModel): #actualiza un producto
     precio: int | None = None
 
 
-# ENDPOINTS
-
-
+# ENDPOINTS 
 # GET
 @app.get("/productos")
 async def obtenerProductos() -> list[Producto]:
