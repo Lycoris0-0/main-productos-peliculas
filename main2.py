@@ -57,16 +57,19 @@ async def obtenerFacturas() -> list[Factura]:
     return [dict(factura) for factura in data]
 
 
+
 @app.get("/facturas/{id}")
-async def buscarFactura(id: int):
+async def buscarFactura(id: int) -> Factura:
     conexion = sqlite3.connect("master.db")
     conexion.row_factory = sqlite3.Row
     
     cursor = conexion.cursor()
     
     cursor.execute("SELECT * FROM facturas WHERE id = ?", (id,))
-    respuesta = cursor.fetchall()
 
+    #respuesta = cursor.fetchall() #trae a todos los registros
+    respuesta = cursor.fetchone() #trae a solo un registro
+    
     conexion.commit()
     
     conexion.close()
@@ -74,8 +77,8 @@ async def buscarFactura(id: int):
     if respuesta is None:
         return {"error": "Factura no encontrada"}
             
-    return (respuesta)
-
+    return dict(respuesta)
+    #return (respuesta)
 
 
 @app.post("/facturas")
@@ -94,3 +97,5 @@ async def agregarFactura(factura: FacturaCreate):
     conexion.close()
     return { "mensaje": "Creado correctamente"}
 
+
+    
