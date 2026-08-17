@@ -23,46 +23,50 @@ async def root():
     return { "Estado": "Servidor en línea"}
 
 # MODELOS
-class Producto(BaseModel):
+
+class Pelicula(BaseModel):
     id: int | None = None
     nombre: str
-    precio: int
+    valoracion: float | None = None
+    genero: str
 
-class ProductoCreate(BaseModel):
+class PeliculaCreate(BaseModel):
     nombre: str
-    precio: int
-
+    valoracion: float | None = None
+    genero: str
 # ENDPOINTS
 # GET
-@app.get("/productos")
-async def obtenerProductos() -> list[Producto]:
-    conexion = sqlite3.connect("master.db")
+@app.get("/peliculas")
+async def obtenerPelicula() -> list[Pelicula]:
+    conexion = sqlite3.connect("vista_peliculas.db")
     conexion.row_factory = sqlite3.Row
 
     cursor = conexion.cursor()
 
-    respuesta = cursor.execute(f"SELECT * FROM productos")
+    respuesta = cursor.execute(f"SELECT * FROM peliculas")
 
-    return [dict(producto) for producto in respuesta.fetchall()]
+    return [dict(pelicula) for pelicula in respuesta.fetchall()]
 # POST
-@app.post("/productos")
-async def agregarProducto(producto: ProductoCreate):
-    conexion = sqlite3.connect("master.db")
+@app.post("/peliculas")
+async def agregarPelicula(pelicula: PeliculaCreate):
+    conexion = sqlite3.connect("vista_peliculas.db")
     
     cursor = conexion.cursor()
     
-    print(producto.nombre)
-    print(producto.precio) 
+    print(pelicula.nombre)
+    print(pelicula.valoracion)
+    print(pelicula.genero) 
 
-    cursor.execute("INSERT INTO productos VALUES(?, ?, ?)", (None,producto.nombre, producto.precio))
+    cursor.execute("INSERT INTO peliculas VALUES(?, ?, ?, ?)", (None,pelicula.nombre,pelicula.valoracion, pelicula.genero))
 
     conexion.commit()
 
     conexion.close()
 
+# PUT
 
 # PATCH
 
-# PUT
+
 
 # DELETE
